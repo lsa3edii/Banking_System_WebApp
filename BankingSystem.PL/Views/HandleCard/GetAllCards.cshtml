@@ -9,16 +9,23 @@
 
 <style>
     :root {
-        --primary-dark: rgb(63, 114, 175); /* new primary dark */
-        --primary-medium: rgb(157, 178, 191); /* new primary medium */
+        --primary-dark: #004890; /* new primary dark */
+        --primary-medium: #7885FF; /* new primary medium */
         --primary-light: rgb(219, 226, 239); /* new primary light */
-        --secondary-dark: rgb(63, 114, 175); /* mapped to primary-dark because no exact secondary */
+        --secondary-dark: #004890; /* mapped to primary-dark because no exact secondary */
         --secondary-light: rgb(219, 226, 239); /* mapped to primary-light */
-        --neutral-1: rgb(157, 178, 191); /* mapped to text-light */
-        --accent-1: rgb(63, 114, 175); /* mapped to primary-dark */
+        --neutral-1: #7885FF; /* mapped to text-light */
+        --accent-1: #004890; /* mapped to primary-dark */
         --accent-2: rgb(221, 230, 237); /* primary-lightest */
-        --accent-3: rgb(238, 244, 255); /* soft background you used */
+        --accent-3: #E9FAEB; /* soft background you used */
         --white: #ffffff; /* stays same */
+        /* --btn: #0466c8; */
+        /* --btn2: #0353a4; */
+        /* --btn-m: #8E99FF; */
+        --btn: #FF9B10;
+        --btn-m: #ffbf69;
+        --header: #000000;
+        --new: #D1F2D1;
     }
 
     .card-grid {
@@ -41,10 +48,10 @@
         justify-content: space-between;
     }
 
-        .visa-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
-        }
+
+        .visa-card:hover {0
+            transform: translateY(-5px);
+
 
     /* Card Background Gradients */
     .card-debit {
@@ -57,12 +64,14 @@
 
     /* Card Header */
     .visa-card-header {
-        padding: 1.5rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: rgba(0, 0, 0, 0.1);
-    }
+
+        background: var(--primary-dark) 90%;
+        /* background: linear-gradient(270deg, var(--primary-dark), var(--primary-dark)); */
+        color: var(--white);
+        padding: 1rem 1.5rem;
+        font-weight: bold;
+        opacity:85%;
+
 
     .visa-card-type {
         font-weight: 600;
@@ -79,11 +88,13 @@
 
     /* Card Body */
     .visa-card-body {
-        background: var(--primary-medium);
-        padding: 0 1.5rem 1.5rem;
-        position: relative;
-        z-index: 1;
-    }
+
+        background: var(--new);
+        /* background: linear-gradient(270deg, var(--primary-dark 10%) , var(--primary-medium)); */
+        padding: 1.5rem;
+        opacity: 85%;
+
+
 
     .visa-card-number {
         font-family: 'Courier New', monospace;
@@ -111,11 +122,20 @@
         font-size: 0.9rem;
     }
 
+
+    .customers-header {
+        color: var(--header);
+        border-bottom: 2px solid var(--accent-1);
+        padding-bottom: 1rem;
+        margin-bottom: 2rem;
+        font-size: 2.5rem;
+
     .visa-card-footer {
         background: rgba(0, 0, 0, 0.15);
         padding: 0.75rem 1.5rem;
         display: flex;
         justify-content: flex-end;
+
     }
 
     /* Chip Design */
@@ -217,7 +237,7 @@
                         <div class="input-group shadow-sm">
                             <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
                             <input type="text" name="search" value="@search" class="form-control" placeholder="Search by card number or account number...">
-                            <button type="submit" class="btn btn-primary">Search</button>
+                            <button type="submit" class="btn btn-warning">Search</button>
                         </div>
                     </form>
 
@@ -285,12 +305,14 @@
                                         </div>
                                     </div>
 
-                                    <div class="visa-card-footer">
-                                        @* <form asp-action="Delete" asp-route-id="@card.Id" class="d-inline"> *@
-                                        @*     <button onclick="return confirmDelete()" class="btn btn-outline-light btn-sm delete-card-btn"> *@
-                                        @*         <i class="fas fa-trash me-1"></i> Delete *@
-                                        @*     </button> *@
-                                        @* </form> *@
+
+                                        <form asp-action="Delete" asp-route-id="@card.Id">
+                                            <button onclick="return confirmDelete()" class="btn btn-outline-danger btn-sm delete-card-btn">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form >
+                                        
+
                                     </div>
                                 </div>
                             </div>

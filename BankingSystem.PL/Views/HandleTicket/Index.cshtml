@@ -11,17 +11,36 @@
 <style>
     /* Your full styles unchanged */
     :root {
-        --primary-dark: rgb(63, 114, 175); /* new primary dark */
-        --primary-medium: rgb(157, 178, 191); /* new primary medium */
+        --primary-dark: #004890; /* new primary dark */
+        --primary-medium: #7885FF; /* new primary medium */
         --primary-light: rgb(219, 226, 239); /* new primary light */
-        --secondary-dark: rgb(63, 114, 175); /* mapped to primary-dark because no exact secondary */
+        --secondary-dark: #004890; /* mapped to primary-dark because no exact secondary */
         --secondary-light: rgb(219, 226, 239); /* mapped to primary-light */
-        --neutral-1: rgb(157, 178, 191); /* mapped to text-light */
-        --accent-1: rgb(63, 114, 175); /* mapped to primary-dark */
+        --neutral-1: #7885FF; /* mapped to text-light */
+        --accent-1: #004890; /* mapped to primary-dark */
         --accent-2: rgb(221, 230, 237); /* primary-lightest */
-        --accent-3: rgb(238, 244, 255); /* soft background you used */
+        --accent-3: #E9FAEB; /* soft background you used */
         --white: #ffffff; /* stays same */
+        /* --btn: #0466c8; */
+        /* --btn2: #0353a4; */
+        /* --btn-m: #8E99FF; */
+        --btn: #FF9B10;
+        --btn-m: #ffbf69;
+        --header: #000000;
     }
+
+    .btn-search {
+        background-color: var(--btn);
+        border-color: var(--btn);
+        color: white;
+    }
+
+        .btn-search:hover {
+            background-color: var(--btn-m);
+            border-color: var(--btn-m);
+            color: white;
+        }
+
 
     .tickets-container {
         background: var(--accent-3);
@@ -31,7 +50,7 @@
     }
 
     .tickets-header {
-        color: var(--primary-dark);
+        color: var(--header);
         border-bottom: 2px solid var(--accent-1);
         padding-bottom: 1rem;
         margin-bottom: 2rem;
@@ -42,7 +61,7 @@
         border-radius: 10px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         margin-bottom: 1.5rem;
-        border-left: 4px solid var(--primary-medium);
+        border-left: 4px solid var(--primary-dark);
         transition: all 0.3s ease;
     }
 
@@ -52,7 +71,8 @@
     /* } */
 
     .ticket-card-header {
-        background: linear-gradient(90deg, var(--primary-dark), var(--primary-medium));
+        background: var(--primary-dark);
+        /* background: linear-gradient(180deg, var(--primary-dark), var(--primary-medium)); */
         color: var(--white);
         padding: 1rem 1.5rem;
         border-radius: 10px 10px 0 0;
@@ -78,6 +98,8 @@
         font-size: 85%;
         padding: 0.35em 0.65em;
         font-weight: 500;
+        border: 1px solid #ccc; /* Light border like a button */
+        border-radius: 5px;
     }
 
     .ticket-avatar {
@@ -98,12 +120,12 @@
 
     .ticket-detail-label {
         font-weight: 600;
-        color: var(--primary-medium);
+        color: var(--header);
         margin-bottom: 0.25rem;
     }
 
     .ticket-detail-value {
-        background-color: var(--accent-3);
+        background-color: var(--accent-2);
         padding: 0.5rem;
         border-radius: 5px;
         border: 1px solid var(--accent-2);
@@ -137,14 +159,9 @@
         color: var(--primary-light);
     }
 
-    .my-ticket:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    }
 
-    .form-switch {
-        margin-right: 0.7rem;
-    }
+    
+
 </style>
 
 
@@ -164,13 +181,11 @@
             <!-- Search - Takes remaining space -->
             <form asp-action="Search" method="get" class="flex-grow-1 me-md-3 order-1 order-md-0">
                 <div class="input-group shadow-sm">
-                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
-                    <input type="text" name="search" value="@search" class="form-control border-start-0" placeholder="Search tickets by account number or customer name...">
-                    
-                    <button type="submit" class="btn btn-primary px-3">
-                        <span class="d-none d-md-inline">Search</span>
-                        <i class="fas fa-search d-md-none"></i>
-                    </button>
+
+                    <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" name="search" value="@search" class="form-control" placeholder="Search tickets by account number or customer name...">
+                    <button type="submit" class="btn btn-search">Search</button>
+
                 </div>
             </form>
 

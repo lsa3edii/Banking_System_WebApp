@@ -6,6 +6,113 @@
     var customerId = ViewBag.CustomerId as string;
 }
 
+<style>
+    :root {
+        --primary-dark: #004890; /* new primary dark */
+        --primary-medium: #7885FF; /* new primary medium */
+        --primary-light: rgb(219, 226, 239); /* new primary light */
+        --secondary-dark: #004890; /* mapped to primary-dark because no exact secondary */
+        --secondary-light: rgb(219, 226, 239); /* mapped to primary-light */
+        --neutral-1: #7885FF; /* mapped to text-light */
+        --accent-1: #004890; /* mapped to primary-dark */
+        --accent-2: rgb(221, 230, 237); /* primary-lightest */
+        --accent-3: #E9FAEB; /* soft background you used */
+        --white: #ffffff; /* stays same */
+        --btn: #FF9B10;
+        --btn-m: #ffbf69;
+        --header: #000000;
+        --seco:#828282;
+        --seco-m : #C8C9C7;
+    }
+
+    /* Page title styling */
+    h2 {
+        color: var(--header);
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+        border-bottom: 3px solid var(--primary-medium);
+        padding-bottom: 0.5rem;
+        display: inline-block;
+    }
+
+    /* Card styling */
+    .card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+    .card-header {
+        background: linear-gradient(10deg ,var(--primary-dark), var(--primary-medium));
+        /* background-color: var(--primary-dark); */
+        color: var(--white);
+        border-bottom: none;
+        padding: 1rem 1.25rem;
+    }
+
+        .card-header h4 {
+            margin-bottom: 0;
+            font-weight: 600;
+        }
+
+    .card-body {
+        background-color: var(--accent-2);
+        padding: 1.5rem;
+    }
+
+    /* List group styling */
+    .list-group-item {
+        border-left: none;
+        border-right: none;
+        border-top: 1px solid var(--accent-2);
+        padding: 1rem 1.25rem;
+        background-color: var(--accent-3);
+    }
+
+        .list-group-item:first-child {
+            border-top: none;
+        }
+
+        .list-group-item:last-child {
+            border-bottom: none;
+        }
+    
+
+    /* Strong text styling */
+    strong {
+        color: var(--primary-dark);
+        font-weight: 600;
+    }
+
+    /* Container styling */
+    .container {
+        padding: 2rem 1rem;
+        max-width: 1200px;
+    }
+
+     
+    .container{
+        padding: 1rem 0.5rem;
+    }
+
+    .card {
+        margin-bottom: 1rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    }
+</style>
+
 <h2>@Model.FirstName @Model.LastName's Details</h2>
 
 <div class="container">
@@ -44,7 +151,7 @@
             <a asp-controller="ManagerCustomer"
                asp-action="GetCustomerLoan"
                asp-route-id="@customerId"
-               class="btn btn-primary">
+               class="btn btn-secondary">
                 View Loan Details
             </a>
         </div>
@@ -72,7 +179,7 @@
             <a asp-controller="ManagerCustomer"
                asp-action="GetCustomerAccount"
                asp-route-id="@customerId"
-               class="btn btn-primary">
+               class="btn btn-secondary">
                 View Account Details
             </a>
         </div>
@@ -99,7 +206,7 @@
             <a asp-controller="ManagerCustomer"
                asp-action="GetCustomerCard"
                asp-route-id="@customerId"
-               class="btn btn-primary">
+               class="btn btn-secondary">
                 View Card Details
             </a>
         </div>
@@ -125,7 +232,7 @@
             <a asp-controller="ManagerCustomer"
                asp-action="GetCustomerSupportTicket"
                asp-route-id="@customerId"
-               class="btn btn-primary">
+               class="btn btn-secondary">
                 View Support Ticket Details
             </a>
         </div>
@@ -149,7 +256,7 @@
             <a asp-controller="ManagerCustomer"
                asp-action="GetCustomerTransaction"
                asp-route-id="@customerId"
-               class="btn btn-primary">
+               class="btn btn-secondary">
                 View Transaction Details
             </a>
         </div>
@@ -172,7 +279,7 @@
             <a asp-controller="ManagerCustomer"
                asp-action="GetCustomerCertificate"
                asp-route-id="@customerId"
-               class="btn btn-primary">
+               class="btn btn-secondary">
                 View Certificate Details
             </a>
         </div>
@@ -181,3 +288,4 @@
     <!-- Back Button -->
     @Html.ActionLink("Back", "GetAllCustomers", "ManagerCustomer", new { id = ManagerId }, new { @class = "btn btn-secondary" })
 </div>
+ 

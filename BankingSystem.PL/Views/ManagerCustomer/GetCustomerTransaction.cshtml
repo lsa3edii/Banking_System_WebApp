@@ -5,69 +5,171 @@
     var customerId = ViewBag.CustomerId as string;
 }
 
-<h1>Customer Transactions</h1>
+<!-- Add this line to include the custom CSS -->
+<link rel="stylesheet" href="~/css/customer-details.css" />
 
-@if (Model != null && Model.Any())
-{
-    <div class="row">
-        @foreach (var transaction in Model)
-        {
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title">Transaction #@transaction.Type</h5>
-                    </div>
-                    <div class="card-body">
-                        <dl class="row">
-                            <dt class="col-sm-4">
-                                Type
-                            </dt>
-                            <dd class="col-sm-8">
-                                @transaction.Type
-                            </dd>
+<h2>Customer Transactions</h2>
 
-                            <dt class="col-sm-4">
-                                Status
-                            </dt>
-                            <dd class="col-sm-8">
-                                @transaction.Status
-                            </dd>
+<div class="container">
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            @foreach (var transaction in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Transaction #@transaction.Type</h4>
+                        </div>
+                        <div class="card-body">
+                            <dl class="transaction-details">
+                                <div class="transaction-detail-item">
+                                    <dt>Type</dt>
+                                    <dd><span class="transaction-type @transaction.Type">@transaction.Type</span></dd>
+                                </div>
 
-                            <dt class="col-sm-4">
-                                Done Via
-                            </dt>
-                            <dd class="col-sm-8">
-                                @transaction.DoneVia
-                            </dd>
+                                <div class="transaction-detail-item">
+                                    <dt>Status</dt>
+                                    <dd><span class="transaction-status @transaction.Status">@transaction.Status</span></dd>
+                                </div>
 
-                            <dt class="col-sm-4">
-                                Account Number
-                            </dt>
-                            <dd class="col-sm-8">
-                                @transaction.AccountNumber
-                            </dd>
+                                <div class="transaction-detail-item">
+                                    <dt>Done Via</dt>
+                                    <dd>@transaction.DoneVia</dd>
+                                </div>
 
-                            <dt class="col-sm-4">
-                                Destination Account Number
-                            </dt>
-                            <dd class="col-sm-8">
-                                @transaction.AccountDestinatoin
-                            </dd>
-                        </dl>
+                                <div class="transaction-detail-item">
+                                    <dt>Account Number</dt>
+                                    <dd>@transaction.AccountNumber</dd>
+                                </div>
+
+                                <div class="transaction-detail-item">
+                                    <dt>Destination Account</dt>
+                                    <dd>@(transaction.AccountDestinatoin == 0 ? "N/A" : transaction.AccountDestinatoin.ToString())</dd>                                </div>
+                            </dl>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <br />
-        }
-    </div>
-}
-else
-{
-    <p>No transactions found for this customer.</p>
-}
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <p>No transactions found for this customer.</p>
+        </div>
+    }
 
-<div>
-    <a asp-controller="ManagerCustomer" asp-action="GetCustomerDetails" asp-route-id="@customerId" class="btn  btn-primary mt-3">
+    <a asp-controller="ManagerCustomer" asp-action="GetCustomerDetails" asp-route-id="@customerId" class="btn btn-secondary mt-3">
         Back
     </a>
 </div>
+
+<style>
+    /* Add these styles to your existing customer-details.css file */
+
+    /* Transaction Definition List Styling - reusing ticket-details structure */
+    .transaction-details {
+        margin: 0;
+        padding: 0;
+    }
+
+    .transaction-detail-item {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--accent-2);
+    }
+
+        .transaction-detail-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+    .transaction-details dt {
+        flex: 0 0 40%;
+        font-weight: 600;
+        color: var(--primary-dark);
+        padding-right: 1rem;
+    }
+
+    .transaction-details dd {
+        flex: 0 0 60%;
+        margin: 0;
+        color: var(--header);
+    }
+
+    /* Transaction Type Styling */
+    .transaction-type {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+        .transaction-type.deposit,
+        .transaction-type.credit {
+            background-color: var(--accent-3);
+            color: var(--primary-dark);
+        }
+
+        .transaction-type.withdrawal,
+        .transaction-type.debit {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .transaction-type.transfer {
+            background-color: var(--primary-medium);
+            color: var(--white);
+        }
+
+        .transaction-type.payment {
+            background-color: var(--btn-m);
+            color: var(--header);
+        }
+
+    /* Transaction Status Styling */
+    .transaction-status {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+        .transaction-status.completed,
+        .transaction-status.successful {
+            background-color: var(--accent-3);
+            color: var(--primary-dark);
+        }
+
+        .transaction-status.pending,
+        .transaction-status.processing {
+            background-color: var(--btn-m);
+            color: var(--header);
+        }
+
+        .transaction-status.failed,
+        .transaction-status.declined {
+            background-color: #ffdddd;
+            color: #d32f2f;
+        }
+
+    .transaction-details dt {
+        flex: 0 0 100%;
+        margin-bottom: 0.25rem;
+    }
+
+    .transaction-details dd {
+        flex: 0 0 100%;
+    }
+
+    .transaction-detail-item {
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+</style>
