@@ -26,7 +26,7 @@ namespace BankingSystem.PL.ViewModels.Admin
         [Required]
         public double Salary { get; set; }
 
-        //[Required]
+        [Required]
         public int? BranchId { get; set; }
 
         [Required]
@@ -35,9 +35,7 @@ namespace BankingSystem.PL.ViewModels.Admin
         [Required]
         public string PhoneNumber { get; set; } = null!;
 
-
-        [DataType(DataType.Password)]
         [Required]
-        public string Password { get; set; } = "Test@123";
+        public string? Password { get; set; }
     }
 }

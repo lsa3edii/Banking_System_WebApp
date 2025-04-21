@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BankingSystem.DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class Create : Migration
+    public partial class a : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -231,7 +231,6 @@ namespace BankingSystem.DAL.Migrations
                     Opens = table.Column<TimeSpan>(type: "time", nullable: false),
                     Closes = table.Column<TimeSpan>(type: "time", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ManagerId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     BankId = table.Column<int>(type: "int", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)
                 },
@@ -266,7 +265,7 @@ namespace BankingSystem.DAL.Migrations
                         column: x => x.BranchId,
                         principalTable: "Branches",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -290,8 +289,7 @@ namespace BankingSystem.DAL.Migrations
                         name: "FK_Managers_Branches_BranchId",
                         column: x => x.BranchId,
                         principalTable: "Branches",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -343,8 +341,40 @@ namespace BankingSystem.DAL.Migrations
                         name: "FK_Accounts_Customers_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FinancialDocument",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DocumentType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    IssueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FileData = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    FileName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    ContentType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    FileSize = table.Column<long>(type: "bigint", nullable: false),
+                    CustomerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CustomerId1 = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FinancialDocument", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FinancialDocument_Customer",
+                        column: x => x.CustomerId,
+                        principalTable: "Customers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_FinancialDocument_Customers_CustomerId1",
+                        column: x => x.CustomerId1,
+                        principalTable: "Customers",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -370,13 +400,12 @@ namespace BankingSystem.DAL.Migrations
                         column: x => x.BranchId,
                         principalTable: "Branches",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Reservations_Customers_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -428,8 +457,7 @@ namespace BankingSystem.DAL.Migrations
                         name: "FK_Cards_Accounts_AccountId",
                         column: x => x.AccountId,
                         principalTable: "Accounts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -453,8 +481,7 @@ namespace BankingSystem.DAL.Migrations
                         name: "FK_Certificates_Accounts_AccountId",
                         column: x => x.AccountId,
                         principalTable: "Accounts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Certificates_GeneralCertificates_GeneralCertificateId",
                         column: x => x.GeneralCertificateId,
@@ -488,19 +515,18 @@ namespace BankingSystem.DAL.Migrations
                         column: x => x.AccountId,
                         principalTable: "Accounts",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Loans_Branches_BranchId",
                         column: x => x.BranchId,
                         principalTable: "Branches",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Loans_Customers_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -536,39 +562,6 @@ namespace BankingSystem.DAL.Migrations
                         name: "FK_Tellers_Managers_ManagerId",
                         column: x => x.ManagerId,
                         principalTable: "Managers",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "FinancialDocument",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    DocumentType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    IssueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FileData = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    FileName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    ContentType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    FileSize = table.Column<long>(type: "bigint", nullable: false),
-                    CustomerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    LoanId = table.Column<int>(type: "int", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_FinancialDocument", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_FinancialDocument_Customers_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "Customers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_FinancialDocument_Loans_LoanId",
-                        column: x => x.LoanId,
-                        principalTable: "Loans",
                         principalColumn: "Id");
                 });
 
@@ -619,14 +612,12 @@ namespace BankingSystem.DAL.Migrations
                         name: "FK_SupportTickets_Accounts_AccountId",
                         column: x => x.AccountId,
                         principalTable: "Accounts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_SupportTickets_Customers_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_SupportTickets_Tellers_TellerId",
                         column: x => x.TellerId,
@@ -663,7 +654,7 @@ namespace BankingSystem.DAL.Migrations
                         column: x => x.CustomerID,
                         principalTable: "Customers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Transactions_Payment_PaymentId",
                         column: x => x.PaymentId,
@@ -777,9 +768,11 @@ namespace BankingSystem.DAL.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FinancialDocument_LoanId",
+                name: "IX_FinancialDocument_CustomerId1",
                 table: "FinancialDocument",
-                column: "LoanId");
+                column: "CustomerId1",
+                unique: true,
+                filter: "[CustomerId1] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Loans_AccountId",

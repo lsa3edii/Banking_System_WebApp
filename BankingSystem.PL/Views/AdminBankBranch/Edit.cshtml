@@ -1,6 +1,5 @@
-﻿@using BankingSystem.PL.ViewModels.Admin
-@model BranchVM
-
+﻿@using BankingSystem.DAL.Models
+@model Branch
 
 @{
     ViewData["Title"] = "Edit Branch Manager";
@@ -131,14 +130,14 @@
                 <h4 class="mb-0">
                     <i class="fas fa-user-tie me-2"></i>Edit Branch Manager
                 </h4>
-                <a asp-action="Index" asp-controller="Admin" class="btn btn-sm btn-outline-light">
+                <a asp-action="Index" class="btn btn-sm btn-outline-light">
                     <i class="fas fa-arrow-left me-1"></i> Back to Branches
                 </a>
             </div>
         </div>
 
         <div class="card-body">
-            <!-- Branch Info -->
+            <!-- Branch Info Section -->
             <div class="manager-card">
                 <div class="row align-items-center">
                     <div class="col-md-8">
@@ -159,19 +158,19 @@
                 </div>
             </div>
 
-            <!-- Current Manager -->
+            <!-- Current Manager Section -->
             <div class="manager-card">
                 <h6 class="mb-3">Current Manager</h6>
-                @if (!string.IsNullOrEmpty(Model.ManagerId))
+                @if (Model.MyManager != null)
                 {
                     <div class="d-flex align-items-center">
                         <div class="manager-avatar me-3">
                             <i class="fas fa-user-tie"></i>
                         </div>
                         <div>
-                            <h6 class="mb-0">@Model.ManagerFirstName @Model.ManagerLastName</h6>
-                            <p class="text-muted mb-0">@Model.ManagerEmail</p>
-                            <small class="text-muted">SSN: @Model.ManagerSSN</small>
+                            <h6 class="mb-0">@Model.MyManager.FirstName @Model.MyManager.LastName</h6>
+                            <p class="text-muted mb-0">@Model.MyManager.Email</p>
+                            <small class="text-muted">SSN: @Model.MyManager.SSN</small>
                         </div>
                     </div>
                 }
@@ -186,24 +185,14 @@
 
             <div class="divider"></div>
 
-            <!-- Form -->
+            <!-- Manager Assignment Form -->
             <form asp-action="Edit" method="post">
-                <!-- Required Hidden Fields -->
                 <input type="hidden" asp-for="Id" />
-                <input type="hidden" asp-for="Name" />
-                <input type="hidden" asp-for="Location" />
-                <input type="hidden" asp-for="Opens" />
-                <input type="hidden" asp-for="Closes" />
-                <input type="hidden" asp-for="IsDeleted" />
-                <input type="hidden" asp-for="ManagerFirstName" />
-                <input type="hidden" asp-for="ManagerLastName" />
-                <input type="hidden" asp-for="ManagerEmail" />
-                <input type="hidden" asp-for="ManagerSSN" />
 
                 <div class="mb-4">
                     <h6 class="mb-3">Assign New Manager</h6>
                     <div class="form-group">
-                        <select asp-for="ManagerId"
+                        <select asp-for="MyManager.Id"
                                 asp-items="@(ViewBag.Managers as SelectList)"
                                 class="form-select select2">
                             <option value="">Select a manager...</option>
@@ -234,15 +223,13 @@
     <link href="https://cdn.jsdelivr.net/npm/@@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             $('.select2').select2({
                 theme: 'bootstrap4',
                 width: '100%',
                 placeholder: "Select a manager",
-                allowClear: true,
-                 minimumResultsForSearch: Infinity
+                allowClear: true
             });
         });
     </script>
 }
-

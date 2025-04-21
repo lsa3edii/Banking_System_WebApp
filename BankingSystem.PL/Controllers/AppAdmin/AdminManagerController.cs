@@ -11,13 +11,12 @@ using AutoMapper;
 using BankingSystem.BLL.Interfaces;
 using BankingSystem.DAL.Models;
 using BankingSystem.PL.ViewModels.Admin;
-using Microsoft.AspNetCore.Identity;
 
-public class AdminManagerController(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager) : Controller
+public class AdminManagerController(IUnitOfWork unitOfWork, IMapper mapper) : Controller
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
-    private readonly UserManager<ApplicationUser> _userManager = userManager;
+
 
 
     public IActionResult GetAllManagers()
@@ -41,10 +40,12 @@ public class AdminManagerController(IUnitOfWork unitOfWork, IMapper mapper, User
 
     // POST: Manager/Create
     [HttpPost]
-    public async Task<IActionResult> Create(ManagerVM model)
+    [ValidateAntiForgeryToken]
+    public IActionResult Create(ManagerVM model)
     {
         try
         {
+            // Create Manager entity from view model
             var manager = new Manager
             {
                 FirstName = model.FirstName,
@@ -57,38 +58,26 @@ public class AdminManagerController(IUnitOfWork unitOfWork, IMapper mapper, User
                 BranchId = model.BranchId,
                 UserName = model.Email,
                 Email = model.Email,
-                PhoneNumber = model.PhoneNumber
-
-                
+                PhoneNumber = model.PhoneNumber,
+                PasswordHash = "Test@123"
             };
 
-            var result = await _userManager.CreateAsync(manager, model.Password);
+            // Add manager to repository
+            _unitOfWork.Repository<Manager>().Add(manager);
 
-            if (result.Succeeded)
-            {
-                await _userManager.AddToRoleAsync(manager, "Manager");
-
-                TempData["SuccessMessage"] = $"Manager '{manager.FirstName} {manager.LastName}' created successfully.";
-                ViewBag.Branches = new SelectList(_unitOfWork.Repository<Branch>().GetAll(), "Id", "Name", model.BranchId);
-
-                return RedirectToAction("Index", "Admin");
-            }
-            else
-            {
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-            }
-
+            // Save changes
+            _unitOfWork.Complete();
+            TempData["SuccessMessage"] = $"Manager '{manager.FirstName} {manager.LastName}' created successfully.";
             ViewBag.Branches = new SelectList(_unitOfWork.Repository<Branch>().GetAll(), "Id", "Name", model.BranchId);
-            return View(model);
+
+            return RedirectToAction("Index", "Admin");
         }
         catch (Exception ex)
         {
             ModelState.AddModelError(string.Empty, $"Error creating manager: {ex.Message}");
         }
 
+        // If we got this far, something failed, redisplay form
         ViewBag.Branches = new SelectList(_unitOfWork.Repository<Branch>().GetAll(), "Id", "Name", model.BranchId);
         return View(model);
     }
@@ -129,29 +118,36 @@ public class AdminManagerController(IUnitOfWork unitOfWork, IMapper mapper, User
     [HttpPost]
     public IActionResult Edit(ManagerVM managerVM)
     {
+        // Fetch the existing manager from the database
         var existingManager = _unitOfWork.Repository<Manager>().GetSingleIncluding(m => m.Id == managerVM.Id, m => m.Branch!, m => m.Tellers!);
 
         if (existingManager == null)
             return NotFound();
 
+        // Update manager properties
         existingManager.FirstName = managerVM.FirstName;
         existingManager.LastName = managerVM.LastName;
         existingManager.Address = managerVM.Address;
         existingManager.Salary = managerVM.Salary;
         existingManager.PhoneNumber = managerVM.PhoneNumber;
 
+        // Only update email if changed (may require additional identity management)
         if (existingManager.Email != managerVM.Email)
         {
             existingManager.Email = managerVM.Email;
             existingManager.UserName = managerVM.Email;
         }
 
+        // Get all branches for the dropdown
         var branches = _unitOfWork.Repository<Branch>().GetAll();
 
         ViewBag.Branches = new SelectList(branches, "Id", "Name", managerVM.BranchId);
 
+
+        // Process branch change if a new branch is selected
         if (managerVM.BranchId.HasValue)
         {
+            // Get the selected branch
             var newBranch = _unitOfWork.Repository<Branch>().GetSingleIncluding(b => b.Id == managerVM.BranchId);
 
             if (newBranch == null)
@@ -160,31 +156,35 @@ public class AdminManagerController(IUnitOfWork unitOfWork, IMapper mapper, User
                 return View(existingManager);
             }
 
+            // If manager was assigned to another branch before
             if (existingManager.BranchId.HasValue && existingManager.BranchId != managerVM.BranchId)
             {
                 var previousBranch = _unitOfWork.Repository<Branch>().GetSingleIncluding(b => b.Id == existingManager.BranchId);
-                if (previousBranch != null && previousBranch.ManagerId == existingManager.Id)
-                {   
+                if (previousBranch != null && previousBranch.MyManager?.Id == existingManager.Id)
+                {
+                    // Unlink manager from previous branch
                     previousBranch.MyManager = null;
                     _unitOfWork.Repository<Branch>().Update(previousBranch);
                 }
             }
 
+            // Assign manager to new branch
             existingManager.BranchId = managerVM.BranchId;
             existingManager.Branch = newBranch;
 
-            newBranch.ManagerId = existingManager.Id;
-
-
+            // Update branch's manager reference
+            newBranch.MyManager = existingManager;
             _unitOfWork.Repository<Branch>().Update(newBranch);
         }
         else
         {
+            // Manager is being unassigned from any branch
             if (existingManager.BranchId.HasValue)
             {
                 var previousBranch = _unitOfWork.Repository<Branch>().GetSingleIncluding(b => b.Id == existingManager.BranchId);
                 if (previousBranch != null && previousBranch.MyManager?.Id == existingManager.Id)
                 {
+                    // Unlink manager from previous branch
                     previousBranch.MyManager = null;
                     _unitOfWork.Repository<Branch>().Update(previousBranch);
                 }
@@ -194,6 +194,7 @@ public class AdminManagerController(IUnitOfWork unitOfWork, IMapper mapper, User
             existingManager.Branch = null;
         }
 
+        // Save changes
         _unitOfWork.Repository<Manager>().Update(existingManager);
         _unitOfWork.Complete();
 

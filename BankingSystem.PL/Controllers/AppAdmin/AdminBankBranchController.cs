@@ -2,7 +2,6 @@
 using BankingSystem.BLL.Interfaces;
 using BankingSystem.DAL.Models;
 using BankingSystem.PL.ViewModels;
-using BankingSystem.PL.ViewModels.Admin;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
@@ -67,8 +66,7 @@ namespace BankingSystem.PL.Controllers.AppAdmin
                         Location = model.Location,
                         CreatedAt = DateTime.Now,
                         Opens = model.Opens,
-                        Closes = model.Closes,
-                        BankId = model.BankId
+                        Closes = model.Closes
                     };
 
                     // Add branch to repository
@@ -99,15 +97,7 @@ namespace BankingSystem.PL.Controllers.AppAdmin
 
             return View(model);
         }
-        // Helper method to get available managers for the dropdown
-        private SelectList GetAvailableManagers(Branch existingBranch, string selectedManagerId)
-        {
-            var availableManagers = _unitOfWork.Repository<Manager>().GetAll()
-                .Where(m => m.BranchId == null || m.Id == existingBranch.ManagerId)
-                .ToList();
 
-            return new SelectList(availableManagers, nameof(Manager.Id), nameof(Manager.FullName), selectedManagerId);
-        }
 
         [HttpGet]
         public IActionResult Edit(int id)
@@ -117,73 +107,76 @@ namespace BankingSystem.PL.Controllers.AppAdmin
             if (branch == null)
                 return NotFound();
 
-            var branchVM = new BranchVM
-            {
-                Id = branch.Id,
-                Name = branch.Name,
-                Location = branch.Location,
-                Opens = branch.Opens,
-                Closes = branch.Closes,
-                IsDeleted = branch.IsDeleted,
-                ManagerId = branch.ManagerId,
-                ManagerFirstName = branch.MyManager?.FirstName,
-                ManagerLastName = branch.MyManager?.LastName,
-                ManagerEmail = branch.MyManager?.Email,
-                ManagerSSN = branch.MyManager?.SSN
-            };
+            // Get available managers (not assigned to any branch)
+            var availableManagers = _unitOfWork.Repository<Manager>().GetAll()
+                .Where(m => m.BranchId == null)
+                .ToList();
 
-            ViewBag.Managers = GetAvailableManagers(branch, branch.ManagerId);
-            return View(branchVM);
+            // Create proper SelectList
+            ViewBag.Managers = new SelectList(
+                availableManagers,
+                nameof(Manager.Id),
+                nameof(Manager.FullName), // Add a FullName property to Manager
+                branch.MyManager?.Id
+            );
+
+            return View(branch);
         }
+
 
         [HttpPost]
         public IActionResult Edit(BranchVM model)
         {
-            var existingBranch = _unitOfWork.Repository<Branch>()
-                .GetSingleIncluding(b => b.Id == model.Id, b => b.MyManager!);
+            var existingBranch = _unitOfWork.Repository<Branch>().GetSingleIncluding(
+                b => b.Id == model.Id,
+                b => b.MyManager!
+            );
 
             if (existingBranch == null)
                 return NotFound();
 
-            ViewBag.Managers = GetAvailableManagers(existingBranch, model.ManagerId);
-
-            model.Name = existingBranch.Name;
-            model.Location = existingBranch.Location;
-            model.Opens = existingBranch.Opens;
-            model.Closes = existingBranch.Closes;
-            model.IsDeleted = existingBranch.IsDeleted;
-
-            model.ManagerFirstName = existingBranch.MyManager?.FirstName;
-            model.ManagerLastName = existingBranch.MyManager?.LastName;
-            model.ManagerEmail = existingBranch.MyManager?.Email;
-            model.ManagerSSN = existingBranch.MyManager?.SSN;
+            // Always repopulate managers dropdown first
+            ViewBag.Managers = new SelectList(
+                _unitOfWork.Repository<Manager>().GetAll().Where(m => m.BranchId == null),
+                nameof(Manager.Id),
+                nameof(Manager.FullName),
+                model.ManagerId  // Correct selected value
+            );
 
             if (!ModelState.IsValid)
+            {
                 return View(model);
+            }
 
             try
             {
-                var currentManagerId = existingBranch.ManagerId;
+                // Update branch properties
+                existingBranch.Name = model.Name;
+                existingBranch.Location = model.Location;
+                existingBranch.Opens = model.Opens;
+                existingBranch.Closes = model.Closes;
+
+                // Handle manager assignment
+                var currentManagerId = existingBranch.MyManager?.Id;
 
                 if (model.ManagerId != currentManagerId)
                 {
-                    if (!string.IsNullOrEmpty(currentManagerId))
+                    // Remove current manager if exists
+                    if (currentManagerId != null)
                     {
-                        var previousManager = _unitOfWork.Repository<Manager>().GetAll()
-                            .FirstOrDefault(m => m.Id == currentManagerId);
-
+                        var previousManager = _unitOfWork.Repository<Manager>().GetAll().Where(b=>b.Id== currentManagerId).FirstOrDefault();
                         if (previousManager != null)
                         {
                             previousManager.BranchId = null;
                             _unitOfWork.Repository<Manager>().Update(previousManager);
                         }
+                        existingBranch.MyManager = null;
                     }
 
+                    // Assign new manager if selected
                     if (!string.IsNullOrEmpty(model.ManagerId))
                     {
-                        var newManager = _unitOfWork.Repository<Manager>().GetAll()
-                            .FirstOrDefault(m => m.Id == model.ManagerId);
-
+                        var newManager = _unitOfWork.Repository<Manager>().GetAll().Where(b => b.Id == model.ManagerId).FirstOrDefault();
                         if (newManager == null)
                         {
                             ModelState.AddModelError("ManagerId", "Selected manager does not exist");
@@ -191,22 +184,16 @@ namespace BankingSystem.PL.Controllers.AppAdmin
                         }
 
                         newManager.BranchId = existingBranch.Id;
-                        _unitOfWork.Repository<Manager>().Update(newManager);
-                        existingBranch.ManagerId = newManager.Id;
                         existingBranch.MyManager = newManager;
-                    }
-                    else
-                    {
-                        existingBranch.ManagerId = null;
-                        existingBranch.MyManager = null;
+                        _unitOfWork.Repository<Manager>().Update(newManager);
                     }
                 }
-                
+
                 _unitOfWork.Repository<Branch>().Update(existingBranch);
                 _unitOfWork.Complete();
 
                 TempData["SuccessMessage"] = "Branch updated successfully";
-                return RedirectToAction("Index", "Admin");
+                return RedirectToAction(nameof(Details), new { id = existingBranch.Id });
             }
             catch (Exception ex)
             {
@@ -214,7 +201,6 @@ namespace BankingSystem.PL.Controllers.AppAdmin
                 return View(model);
             }
         }
-
 
 
         [HttpPost]
