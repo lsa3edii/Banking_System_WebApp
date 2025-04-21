@@ -45,12 +45,25 @@ namespace BankingSystem.PL.Helpers
 
             CreateMap<Customer, CustomersViewModel>()
                     .ForMember(dest => dest.Branch, s => s.MapFrom(s => s.Branch.Name));
+
             CreateMap<Customer, CustomerDetailsViewModel>()
                 .ForMember(dest => dest.Branch, opt => opt.MapFrom(src => src.Branch.Name))
                 .ForMember(dest => dest.Accounts, opt => opt.MapFrom(src => src.Accounts))
                 .ForMember(dest => dest.Loans, opt => opt.MapFrom(src => src.Loans))
                 .ForMember(dest => dest.Transactions, opt => opt.MapFrom(src => src.Transactions))
-                .ForMember(dest => dest.Tickets, opt => opt.MapFrom(src => src.SupportTickets));
+                .ForMember(dest => dest.Tickets, opt => opt.MapFrom(src => src.SupportTickets))
+                .ForMember(dest => dest.TransactionsCount, opt => opt.MapFrom(src =>
+                    src.Accounts != null ?
+                    src.Accounts.Sum(a => a.AccountTransactions != null ? a.AccountTransactions.Count : 0) : 0))
+                .ForMember(dest => dest.SupportTicketsCount, opt => opt.MapFrom(src =>
+                    src.Accounts != null ?
+                    src.Accounts.Sum(a => a.SupportTickets != null ? a.SupportTickets.Count : 0) : 0))
+                .ForMember(dest => dest.LoansCount, opt => opt.MapFrom(src =>
+                    src.Accounts != null ?
+                    src.Accounts.Sum(a => a.Loans != null ? a.Loans.Count : 0) : 0))
+                .ForMember(dest => dest.CertificatesCount, opt => opt.MapFrom(src =>
+                    src.Accounts != null ?
+                    src.Accounts.Sum(a => a.Certificates != null ? a.Certificates.Count : 0) : 0));
 
 
             CreateMap<Customer, ManagerCustomerDetailsViewModel>()
@@ -159,8 +172,13 @@ namespace BankingSystem.PL.Helpers
                     .ReverseMap();
 
             CreateMap<Loan, LoanDetailsViewModel>()
-                    .ForMember(dest => dest.Loan, opt => opt.MapFrom(src => src))
-                    .ForMember(dest => dest.FinancialDocument, opt => opt.MapFrom(src => src.Customer.FinancialDocument));
+                .ForMember(dest => dest.Loan, opt => opt.MapFrom(src => src)) // Maps Loan to LoansViewModel
+                .ForMember(dest => dest.FinancialDocument, opt => opt.MapFrom(src => src.Customer.FinancialDocument)); // Assuming Customer has FinancialDocuments list
+
+            CreateMap<LoanDetailsViewModel, Loan>()
+                .ForMember(dest => dest.Customer, opt => opt.Ignore()) // Typically you wouldn't map this back
+                .ForMember(dest => dest.Payments, opt => opt.MapFrom(src => src.Payments));
+
 
             CreateMap<SupportTicket, TicketsViewModel>()
                     .ForMember(dest => dest.CustomerName, s => s.MapFrom(s => s.Customer.UserName))
@@ -170,8 +188,13 @@ namespace BankingSystem.PL.Helpers
 
             CreateMap<SupportTicket, TicketDetailsView>()
                     .ForMember(dest => dest.Ticket, opt => opt.MapFrom(src => src))
-                    .ForMember(dest => dest.Document, opt => opt.MapFrom(src => src.Customer.FinancialDocument))
+                    //.ForMember(dest => dest.Document, opt => opt.MapFrom(src => src.Customer.FinancialDocument)) // Or whatever logic you need
                     .ReverseMap();
+
+            //CreateMap<SupportTicket, TicketDetailsView>()
+            //        .ForMember(dest => dest.Ticket, opt => opt.MapFrom(src => src))
+            //        .ForMember(dest => dest.Document, opt => opt.MapFrom(src => src.Customer.FinancialDocument))
+            //        .ReverseMap();
 
             CreateMap<Account, AccountsViewModel>()
             .ForMember(dest => dest.SelectedAccountNumber, opt => opt.MapFrom(src => src.Number))
@@ -184,7 +207,7 @@ namespace BankingSystem.PL.Helpers
 
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.CardType, opt => opt.MapFrom(src => src.CardType.ToString()))
-            .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Account.Customer.UserName))
+            .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src =>  src.Account.Customer.FirstName + " " + src.Account.Customer.LastName))
             .ForMember(dest => dest.AccountNumber, opt => opt.MapFrom(src => src.Account.Number));
             CreateMap<Account, AccountMinimal>()
                 .ForMember(dest => dest.Number, opt => opt.MapFrom(src => src.Number))

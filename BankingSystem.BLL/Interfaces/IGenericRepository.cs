@@ -1,4 +1,5 @@
 ﻿using BankingSystem.DAL.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
@@ -12,9 +13,10 @@ namespace BankingSystem.BLL.Interfaces
 
     public interface IGenericRepository <T> where T : class
     {
-        IEnumerable<T> GetAll(string? userID = "", int flag = 1);
+        IQueryable<T> GetAll(string? userID = "", int flag = 1);
+        //public IQueryable<T> GetQueryable();
 
-        T? Get(int id, long number = 0);
+        T? Get(int id, string? id2 = "", long number = 0);
 
         void Add(T Entity);
 
@@ -28,6 +30,7 @@ namespace BankingSystem.BLL.Interfaces
         Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate); //NEW 
 
         T? GetSingleDeepIncluding(Expression<Func<T, bool>> predicate, params Func<IQueryable<T>, IIncludableQueryable<T, object>>[] includes);
+
 
     }
 }

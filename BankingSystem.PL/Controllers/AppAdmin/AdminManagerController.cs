@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,11 +11,14 @@ using AutoMapper;
 using BankingSystem.BLL.Interfaces;
 using BankingSystem.DAL.Models;
 using BankingSystem.PL.ViewModels.Admin;
+using Microsoft.AspNetCore.Identity;
 
-public class AdminManagerController(IUnitOfWork unitOfWork, IMapper mapper) : Controller
+public class AdminManagerController(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager) : Controller
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
+    private readonly UserManager<ApplicationUser> _userManager = userManager;
+
 
     public IActionResult GetAllManagers()
     {
@@ -33,53 +36,68 @@ public class AdminManagerController(IUnitOfWork unitOfWork, IMapper mapper) : Co
     {
         // Populate branches dropdown
         ViewBag.Branches = new SelectList(_unitOfWork.Repository<Branch>().GetAll(), "Id", "Name");
-        return View(new ManagerVM());
+        return View();
     }
 
     // POST: Manager/Create
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult Create(ManagerVM model)
+    public async Task<IActionResult> Create(ManagerVM model)
     {
-        if (ModelState.IsValid)
+        try
         {
-            try
+            // Create Manager entity from view model
+            var manager = new Manager
             {
-                // Create Manager entity from view model
-                var manager = new Manager
-                {
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Address = model.Address,
-                    SSN = model.SSN,
-                    JoinDate = DateTime.Now,
-                    BirthDate = model.BirthDate,
-                    Salary = model.Salary,
-                    BranchId = model.BranchId,
-                    UserName = model.Email,
-                    Email = model.Email,
-                    PhoneNumber = model.PhoneNumber
-                };
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                Address = model.Address,
+                SSN = model.SSN,
+                JoinDate = DateTime.Now,
+                BirthDate = model.BirthDate,
+                Salary = model.Salary,
+                BranchId = model.BranchId,
+                UserName = model.Email,
+                Email = model.Email,
+                PhoneNumber = model.PhoneNumber
+                // PasswordHash is set via UserManager
+            };
 
-                // Add manager to repository
-                _unitOfWork.Repository<Manager>().Add(manager);
+            // Use UserManager to create the Manager with hashed password
+            var result = await _userManager.CreateAsync(manager, model.Password);
 
-                // Save changes
-                _unitOfWork.Complete();
+            if (result.Succeeded)
+            {
+                // Add the Manager to the "Manager" role
+                await _userManager.AddToRoleAsync(manager, "Manager");
 
                 TempData["SuccessMessage"] = $"Manager '{manager.FirstName} {manager.LastName}' created successfully.";
-                return RedirectToAction("Index");
+                ViewBag.Branches = new SelectList(_unitOfWork.Repository<Branch>().GetAll(), "Id", "Name", model.BranchId);
+
+                return RedirectToAction("Index", "Admin");
             }
-            catch (Exception ex)
+            else
             {
-                ModelState.AddModelError(string.Empty, $"Error creating manager: {ex.Message}");
+                // Add errors to ModelState
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
             }
+
+            // Repopulate branches if returning to the form
+            ViewBag.Branches = new SelectList(_unitOfWork.Repository<Branch>().GetAll(), "Id", "Name", model.BranchId);
+            return View(model);
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, $"Error creating manager: {ex.Message}");
         }
 
         // If we got this far, something failed, redisplay form
         ViewBag.Branches = new SelectList(_unitOfWork.Repository<Branch>().GetAll(), "Id", "Name", model.BranchId);
         return View(model);
     }
+
 
     [HttpGet]
     public IActionResult Edit(string id)
@@ -92,55 +110,61 @@ public class AdminManagerController(IUnitOfWork unitOfWork, IMapper mapper) : Co
         // Get available branches
         var branches = _unitOfWork.Repository<Branch>().GetAll().ToList();
 
-        ViewBag.Branches = branches.Select(b => new SelectListItem
-        {
-            Value = b.Id.ToString(),
-            Text = b.Name,
-            Selected = manager.Branch != null && b.Id == manager.Branch.Id
-        });
 
-        return View(manager);
+        ViewBag.Branches = new SelectList(branches, "Id", "Name", manager.BranchId);
+
+        ManagerVM managerVM = new ManagerVM
+        {
+            //Id = manager.Id,
+            FirstName = manager.FirstName,
+            LastName = manager.LastName,
+            Address = manager.Address,
+            SSN = manager.SSN,
+            //JoinDate = manager.JoinDate,
+            BirthDate = manager.BirthDate,
+            Salary = manager.Salary,
+            PhoneNumber = manager.PhoneNumber,
+            Email = manager.Email,
+            BranchId = manager.BranchId
+        };
+
+        return View(managerVM);
     }
 
     [HttpPost]
-    public IActionResult Edit(Manager manager, int? newBranchId)
+    public IActionResult Edit(ManagerVM managerVM)
     {
         // Fetch the existing manager from the database
-        var existingManager = _unitOfWork.Repository<Manager>().GetSingleIncluding(m => m.Id == manager.Id, m => m.Branch!, m => m.Tellers!);
+        var existingManager = _unitOfWork.Repository<Manager>().GetSingleIncluding(m => m.Id == managerVM.Id, m => m.Branch!, m => m.Tellers!);
 
         if (existingManager == null)
             return NotFound();
 
         // Update manager properties
-        existingManager.FirstName = manager.FirstName;
-        existingManager.LastName = manager.LastName;
-        existingManager.Address = manager.Address;
-        existingManager.Salary = manager.Salary;
-        existingManager.PhoneNumber = manager.PhoneNumber;
+        existingManager.FirstName = managerVM.FirstName;
+        existingManager.LastName = managerVM.LastName;
+        existingManager.Address = managerVM.Address;
+        existingManager.Salary = managerVM.Salary;
+        existingManager.PhoneNumber = managerVM.PhoneNumber;
 
         // Only update email if changed (may require additional identity management)
-        if (existingManager.Email != manager.Email)
+        if (existingManager.Email != managerVM.Email)
         {
-            existingManager.Email = manager.Email;
-            existingManager.UserName = manager.Email;
+            existingManager.Email = managerVM.Email;
+            existingManager.UserName = managerVM.Email;
         }
 
         // Get all branches for the dropdown
         var branches = _unitOfWork.Repository<Branch>().GetAll();
 
-        // Prepare branches for view if we need to return to it
-        ViewBag.Branches = branches.Select(b => new SelectListItem
-        {
-            Value = b.Id.ToString(),
-            Text = b.Name,
-            Selected = existingManager.Branch != null && b.Id == existingManager.Branch.Id
-        });
+        ViewBag.Branches = new SelectList(branches, "Id", "Name", managerVM.BranchId);
+
 
         // Process branch change if a new branch is selected
-        if (newBranchId.HasValue)
+        if (managerVM.BranchId.HasValue)
         {
             // Get the selected branch
-            var newBranch = _unitOfWork.Repository<Branch>().GetSingleIncluding(b => b.Id == newBranchId);
+            var newBranch = _unitOfWork.Repository<Branch>().GetSingleIncluding(b => b.Id == managerVM.BranchId);
 
             if (newBranch == null)
             {
@@ -149,7 +173,7 @@ public class AdminManagerController(IUnitOfWork unitOfWork, IMapper mapper) : Co
             }
 
             // If manager was assigned to another branch before
-            if (existingManager.BranchId.HasValue && existingManager.BranchId != newBranchId)
+            if (existingManager.BranchId.HasValue && existingManager.BranchId != managerVM.BranchId)
             {
                 var previousBranch = _unitOfWork.Repository<Branch>().GetSingleIncluding(b => b.Id == existingManager.BranchId);
                 if (previousBranch != null && previousBranch.MyManager?.Id == existingManager.Id)
@@ -161,7 +185,7 @@ public class AdminManagerController(IUnitOfWork unitOfWork, IMapper mapper) : Co
             }
 
             // Assign manager to new branch
-            existingManager.BranchId = newBranchId;
+            existingManager.BranchId = managerVM.BranchId;
             existingManager.Branch = newBranch;
 
             // Update branch's manager reference
@@ -191,9 +215,11 @@ public class AdminManagerController(IUnitOfWork unitOfWork, IMapper mapper) : Co
         _unitOfWork.Complete();
 
         TempData["SuccessMessage"] = "Manager updated successfully.";
-        return RedirectToAction(nameof(Details), new { id = existingManager.Id });
+        return RedirectToAction(nameof(Index), nameof(Admin));
     }
 
+
+    [HttpPost]
     public IActionResult Delete(string id)
     {
         // Get the manager to be deleted
@@ -240,7 +266,7 @@ public class AdminManagerController(IUnitOfWork unitOfWork, IMapper mapper) : Co
             TempData["ErrorMessage"] = $"An error occurred while trying to delete the manager: {ex.Message}";
         }
 
-        return RedirectToAction("Index");
+        return RedirectToAction("Index", "Admin");
     }
 
     public IActionResult Details(string id)

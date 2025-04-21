@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.Operations;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using System.Globalization;
 using System.Security.Claims;
@@ -30,7 +31,7 @@ namespace BankingSystem.PL.Controllers.AppTeller
         private readonly IGenericRepository<VisaCard> _genericRepositoryCard;
         private readonly ISearchPaginationRepo<Customer> _searchPaginationRepo;
 
-        public HandleCustomerController(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapper mapper, 
+        public HandleCustomerController(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapper mapper,
             IGenericRepository<Account> genericRepository, IGenericRepository<VisaCard> genericRepositoryCard, ISearchPaginationRepo<Customer> searchPaginationRepo)
         {
             _unitOfWork = unitOfWork;
@@ -57,7 +58,7 @@ namespace BankingSystem.PL.Controllers.AppTeller
 
 
                 .ToList();
-                
+
 
 
             if (filter != null)
@@ -74,12 +75,6 @@ namespace BankingSystem.PL.Controllers.AppTeller
 
         public ActionResult GetCustomerDetails(string id)
         {
-
-            //Different Logic By Me
-            //var Customerr = _unitOfWork.Repository<Customer>()
-            //   .GetSingleIncluding(C => C.Id == id, C => C.Branch, C => C.Loans, C => C.Transactions, C => C.SupportTickets, C => C.Accounts);
-
-            //Different Logic By Hady meen ya علق 
 
             var Customerr = _unitOfWork.Repository<Customer>()
             .GetAllIncluding(
@@ -113,7 +108,6 @@ namespace BankingSystem.PL.Controllers.AppTeller
             return View("~/Views/Account/Register.cshtml");
         }
 
-
         [HttpPost]
         public async Task<ActionResult> CreateCustomer(RegisterViewModel UserToRegister)
         {
@@ -133,7 +127,9 @@ namespace BankingSystem.PL.Controllers.AppTeller
 
                     if (UserToRegister.Role == "Customer")
                     {
+                        UserToRegister.Id = Guid.NewGuid().ToString();
                         var customer = _mapper.Map<Customer>(UserToRegister);
+                        customer.Id = UserToRegister.Id;
 
                         customer.BranchId = TellerHandleCustomer.BranchId;
 
@@ -164,8 +160,6 @@ namespace BankingSystem.PL.Controllers.AppTeller
             return View(nameof(Register), UserToRegister);
         }
 
-
-
         public ActionResult EditCustomer(string id)
         {
             if (string.IsNullOrEmpty(id)) return NotFound();
@@ -176,7 +170,7 @@ namespace BankingSystem.PL.Controllers.AppTeller
             var model = new EditCustomerViewModel
             {
                 Id = customer.Id,
-                
+
                 Email = customer.Email,
                 SSN = customer.SSN,
                 FirstName = customer.FirstName,
@@ -184,7 +178,7 @@ namespace BankingSystem.PL.Controllers.AppTeller
                 Address = customer.Address,
                 BirthDate = customer.BirthDate,
                 JoinDate = customer.JoinDate,
-               
+
             };
 
             return View(model);
@@ -193,7 +187,7 @@ namespace BankingSystem.PL.Controllers.AppTeller
 
         // POST: HandleCustomerController/Edit/5
         [HttpPost]
-     
+
         public async Task<ActionResult> EditCustomer(string id, EditCustomerViewModel model)
         {
             if (id != model.Id) return NotFound();
@@ -203,7 +197,7 @@ namespace BankingSystem.PL.Controllers.AppTeller
                 var customer = _userManager.Users.OfType<Customer>().FirstOrDefault(c => c.Id == id);
                 if (customer == null) return NotFound();
 
-              
+
                 customer.Email = model.Email;
                 customer.SSN = model.SSN;
                 customer.FirstName = model.FirstName;
@@ -211,7 +205,7 @@ namespace BankingSystem.PL.Controllers.AppTeller
                 customer.Address = model.Address;
                 customer.BirthDate = model.BirthDate;
                 customer.JoinDate = model.JoinDate;
-             
+
 
                 var result = await _userManager.UpdateAsync(customer);
                 if (result.Succeeded)
@@ -229,7 +223,6 @@ namespace BankingSystem.PL.Controllers.AppTeller
         }
 
 
-
         public ActionResult DeleteCustomer(string id)
         {
             var Customer = _unitOfWork.Repository<Customer>()
@@ -240,7 +233,6 @@ namespace BankingSystem.PL.Controllers.AppTeller
 
             return View(mappedCustomerToDeleted);
         }
-
 
         [HttpPost]
         public ActionResult DeleteCustomer(CustomerDetailsViewModel customerDetailsViewModel)
@@ -253,6 +245,21 @@ namespace BankingSystem.PL.Controllers.AppTeller
                   C => C.Branch, C => C.Loans, C => C.Transactions, /*C => C.Cards,*/
                   C => C.SupportTickets, C => C.Accounts);
 
+
+
+                if (customerToBeDeleted != null)
+                    if (customerToBeDeleted.Accounts != null)
+                    {
+                        var accs = _unitOfWork.Repository<Account>().GetAllIncluding(a => a.Card)
+                                 .Where(a => a.CustomerId == customerToBeDeleted.Id)
+                                 .ToList();
+
+                        foreach (var acc in accs)
+                            _unitOfWork.Repository<Account>().Delete(acc);
+                    }
+
+
+
                 _unitOfWork.Repository<Customer>().Delete(customerToBeDeleted);
                 _unitOfWork.Complete();
                 return RedirectToAction(nameof(GetAllCustomers), new { id = User.FindFirst(ClaimTypes.NameIdentifier).Value });
@@ -262,15 +269,12 @@ namespace BankingSystem.PL.Controllers.AppTeller
             return View(customerDetailsViewModel);
         }
 
-
-
-
         public IActionResult ShowAccounts(string id)
         {
             return View(_genericRepositoryAcc.GetAll(id, flag: 2));
         }
 
-        
+
         public IActionResult ShowCards(string id)
         {
             return View(_genericRepositoryCard.GetAll(id));
@@ -290,6 +294,8 @@ namespace BankingSystem.PL.Controllers.AppTeller
 
             return View("GetAllCustomers", cutomerstoView);
         }
+
+
 
 
 

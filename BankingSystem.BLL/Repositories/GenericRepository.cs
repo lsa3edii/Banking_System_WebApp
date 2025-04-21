@@ -32,21 +32,22 @@ namespace BankingSystem.BLL.Repositories
             _dbContext.Remove(Entity);
         }
 
-        public T? Get(int id, long number = 0)
+        public T? Get(int id, string? id2 = "", long number = 0)
         {
             return _dbContext.Find<T>(id); 
         }
 
-        public IEnumerable<T> GetAll(string? userID = "", int flag = 1)
+        public IQueryable<T> GetAll(string? userID = "", int flag = 1)
         {
             //if (typeof(T) == typeof(Empolyee))
             //{
             //    return (IEnumerable<T>)_dbContext.Empolyees.Include(E => E.Department).AsNoTracking().ToList();
             //}
             
-             return _dbContext.Set<T>().AsNoTracking().ToList();
+             return _dbContext.Set<T>().AsNoTracking();
             
         }
+
 
         public void Update(T Entity)
         {

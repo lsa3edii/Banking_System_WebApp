@@ -361,14 +361,14 @@ namespace BankingSystem.DAL.Migrations
                     b.Property<DateTime>("IssueDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("MyCustomerId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int?>("LoanId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("MyCustomerId");
+                    b.HasIndex("LoanId");
 
                     b.ToTable("FinancialDocument");
                 });
@@ -992,16 +992,15 @@ namespace BankingSystem.DAL.Migrations
 
             modelBuilder.Entity("BankingSystem.DAL.Models.FinancialDocument", b =>
                 {
-                    b.HasOne("BankingSystem.DAL.Models.MyCustomer", "Customer")
-                        .WithMany()
+                    b.HasOne("BankingSystem.DAL.Models.Customer", "Customer")
+                        .WithMany("FinancialDocument")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_FinancialDocument_Customer");
+                        .IsRequired();
 
-                    b.HasOne("BankingSystem.DAL.Models.MyCustomer", null)
-                        .WithMany("FinancialDocuments")
-                        .HasForeignKey("MyCustomerId");
+                    b.HasOne("BankingSystem.DAL.Models.Loan", null)
+                        .WithMany("FinancialDocument")
+                        .HasForeignKey("LoanId");
 
                     b.Navigation("Customer");
                 });
@@ -1071,10 +1070,10 @@ namespace BankingSystem.DAL.Migrations
             modelBuilder.Entity("BankingSystem.DAL.Models.SupportTicket", b =>
                 {
                     b.HasOne("BankingSystem.DAL.Models.Account", "Account")
-                        .WithMany()
+                        .WithMany("SupportTickets")
                         .HasForeignKey("AccountId");
 
-                    b.HasOne("BankingSystem.DAL.Models.MyCustomer", "Customer")
+                    b.HasOne("BankingSystem.DAL.Models.Customer", "Customer")
                         .WithMany("SupportTickets")
                         .HasForeignKey("CustomerId");
 
@@ -1289,6 +1288,8 @@ namespace BankingSystem.DAL.Migrations
 
             modelBuilder.Entity("BankingSystem.DAL.Models.Loan", b =>
                 {
+                    b.Navigation("FinancialDocument");
+
                     b.Navigation("Payments");
                 });
 

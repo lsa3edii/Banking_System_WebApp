@@ -23,17 +23,17 @@ namespace BankingSystem.BLL.Services
         }
 
 
-        public IEnumerable<VisaCard> GetAll(string? userID = "", int flag = 1)
+        public IQueryable<VisaCard> GetAll(string? userID = "", int flag = 1)
         {
             return _context.Cards
                    .Include(c => c.Account)
                        .ThenInclude(a => a.Customer)
                    .Where(c => c.Account != null && c.Account.Customer != null && c.Account.Customer.Id == userID)
-                   .ToList();
+                   ;
         }
 
 
-        public VisaCard? Get(int id, long number = 0)
+        public VisaCard? Get(int id, string? UID = "", long number = 0)
         {
             return _context.Cards
                    .Include(c => c.Account)

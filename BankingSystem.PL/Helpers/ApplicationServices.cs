@@ -29,14 +29,21 @@ namespace BankingSystem.PL.Helpers
             Services.AddScoped<IGenericRepository<Customer>, MyCustomerBL>();
             Services.AddScoped<IGenericRepository<VisaCard>, MyCardBL>();
             Services.AddScoped<IGenericRepository<SupportTicket>, MyTicketBL>();
+            Services.AddScoped<IGenericRepository<Admin>, MyAdminBL>();
+            Services.AddScoped<IGenericRepository<GeneralCertificate>, MyGenCertificateBL>();
+
             Services.AddScoped<HandleAccountTransferes>();
+
             Services.AddScoped<ISearchPaginationRepo<Account>, MyAccountBL>();
             Services.AddScoped<ISearchPaginationRepo<Customer>, MyCustomerBL>();
             Services.AddScoped<ISearchPaginationRepo<VisaCard>, MyCardBL>();
             Services.AddScoped<ISearchPaginationRepo<SupportTicket>, MyTicketBL>();
+            Services.AddScoped<ISearchPaginationRepo<Admin>, MyAdminBL>();
+            Services.AddScoped<ISearchPaginationRepo<GeneralCertificate>, MyGenCertificateBL>();
 
-               Services.AddScoped<FinancialDocumentService>();
-               Services.AddAutoMapper(M => M.AddProfile(new MappingProfile()));
+            Services.AddScoped<FinancialDocumentService>();
+            Services.AddAutoMapper(M => M.AddProfile(new MappingProfile()));
+
             return Services;
         }
     }

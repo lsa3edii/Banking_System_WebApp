@@ -26,13 +26,13 @@ namespace BankingSystem.BLL.Services
         {
             throw new NotImplementedException();
         }
-        public Customer? Get(int id, long number = 0)
+        public Customer? Get(int id, string? UID = "", long number = 0)
         {
             throw new NotImplementedException();
         }
 
 
-        public IEnumerable<Customer> GetAll(string? userID = "", int flag = 1)
+        public IQueryable<Customer> GetAll(string? userID = "", int flag = 1)
         {
             return _context.Customers
                 .Include(c => c.Branch)
