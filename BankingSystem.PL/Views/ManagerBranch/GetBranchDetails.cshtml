@@ -7,17 +7,35 @@
 }
 <style>
     :root {
-        --primary-dark: rgb(63, 114, 175); /* new primary dark */
-        --primary-medium: rgb(157, 178, 191); /* new primary medium */
+        --primary-dark: #004890; /* new primary dark */
+        --primary-medium: #7885FF; /* new primary medium */
         --primary-light: rgb(219, 226, 239); /* new primary light */
-        --secondary-dark: rgb(63, 114, 175); /* mapped to primary-dark because no exact secondary */
+        --secondary-dark: #004890; /* mapped to primary-dark because no exact secondary */
         --secondary-light: rgb(219, 226, 239); /* mapped to primary-light */
-        --neutral-1: rgb(157, 178, 191); /* mapped to text-light */
-        --accent-1: rgb(63, 114, 175); /* mapped to primary-dark */
+        --neutral-1: #7885FF; /* mapped to text-light */
+        --accent-1: #004890; /* mapped to primary-dark */
         --accent-2: rgb(221, 230, 237); /* primary-lightest */
-        --accent-3: rgb(238, 244, 255); /* soft background you used */
+        --accent-3: #E9FAEB; /* soft background you used */
         --white: #ffffff; /* stays same */
+        /* --btn: #0466c8; */
+        /* --btn2: #0353a4; */
+        /* --btn-m: #8E99FF; */
+        --btn: #FFAB35;
+        --btn-m: #ffbf69;
+        --header: #000000;
     }
+
+    .btn-search {
+        background-color: var(--btn);
+        border-color: var(--btn);
+        color: white;
+    }
+
+        .btn-search:hover {
+            background-color: var(--btn-m);
+            border-color: var(--btn-m);
+            color: white;
+        }
 
     .branch-card {
         border: 2px solid var(--accent-2);
@@ -32,7 +50,7 @@
         }
 
     .card-header {
-        background: var(--primary-dark) !important;
+        background: linear-gradient(10deg, var(--primary-dark), var(--primary-medium));
         color: var(--accent-3) !important;
         padding: 1.5rem;
         border-bottom: 3px solid var(--accent-1);
@@ -57,20 +75,20 @@
     }
 
     .form-control:read-only {
-        background: var(--neutral-1);
+        background: var( --accent-3);
         border: 2px solid var(--accent-2);
    
     }
 
     .edit-btn {
-        background: var(--accent-1);
+        background: var(--btn);
         color: black;
-        border: 2px solid var(--accent-1);
+        border: 2px solid var(--btn);
         transition: all 0.3s ease;
     }
 
         .edit-btn:hover {
-            background: var(--accent-2);
+            background: var(--btn-m);
             transform: scale(1.05);
         }
 
@@ -210,11 +228,11 @@
                         </div>
 
                         <!-- Edit Business Hours Button -->
-                        <div class="col-12 text-center mt-2">
+                        <div class="col-12 text-center mt-2 py-2">
 
-                            <button type="button" class="btn btn-outline-primary rounded-pill px-4 edit-btn">
+                            <button type="button" class="btn rounded-pill px-4 edit-btn">
                                 <i class="bi bi-pencil-square me-2"></i>
-                                <span style="color:white">Edit Business Hours</span>
+                                <span style="color:black">Edit Business Hours</span>
                             </button>
                         </div>
                     </form>
@@ -244,12 +262,12 @@
                                             {
                                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                                     <span>@loan.LoanAmount.ToString("C")</span>
-                                                    <span class="badge bg-secondary">@loan.CurrentDebt.ToString("C")</span>
+                                                    <span class="badge bg-secondary text-dark">@loan.CurrentDebt.ToString("C")</span>
                                                 </li>
                                             }
                                         </ul>
                                         <div class="text-end mt-2">
-                                            <a asp-controller="ManagerLoan" asp-action="GetAllLoans" class="btn btn-sm btn-primary">View All (@Model.Loans.Count)</a>
+                                            <a asp-controller="ManagerLoan" asp-action="GetAllLoans" class="btn btn-sm btn-secondary">View All (@Model.Loans.Count)</a>
                                         </div>
 
                                     }
@@ -281,7 +299,7 @@
                                             }
                                         </ul>
                                         <div class="text-end mt-2">
-                                            <a asp-controller="ManagerCustomer" asp-action="GetAllCustomers" asp-route-id="@User.FindFirst(ClaimTypes.NameIdentifier)?.Value" class="btn btn-sm btn-primary">View All (@Model.Customers.Count)</a>
+                                            <a asp-controller="ManagerCustomer" asp-action="GetAllCustomers" asp-route-id="@User.FindFirst(ClaimTypes.NameIdentifier)?.Value" class="btn btn-sm btn-secondary">View All (@Model.Customers.Count)</a>
                                         </div>
 
                                     }
@@ -314,7 +332,7 @@
                                         </ul>
 
                                         <div class="text-end mt-2">
-                                            <a class="btn btn-sm btn-primary" asp-controller="ManagerTeller" asp-action="GetAllTellers" asp-route-id="@User.FindFirst(ClaimTypes.NameIdentifier)?.Value">View All (@Model.Tellers.Count)</a>
+                                            <a class="btn btn-sm btn-secondary" asp-controller="ManagerTeller" asp-action="GetAllTellers" asp-route-id="@User.FindFirst(ClaimTypes.NameIdentifier)?.Value">View All (@Model.Tellers.Count)</a>
                                         </div>
                                     }
                                     else
@@ -354,7 +372,7 @@
                                                 </tbody>
                                             </table>
                                             <div class="text-end mt-2">
-                                                <a asp-controller="ManagerSavings" asp-action="GetAllSavings" asp-route-id="@User.FindFirst(ClaimTypes.NameIdentifier)?.Value" class="btn btn-sm btn-primary">
+                                                <a asp-controller="ManagerSavings" asp-action="GetAllSavings" asp-route-id="@User.FindFirst(ClaimTypes.NameIdentifier)?.Value" class="btn btn-sm btn-secondary">
                                                     View All (@Model.Savings.Count)
                                                 </a>
                                             </div>

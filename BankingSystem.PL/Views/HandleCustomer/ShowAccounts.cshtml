@@ -8,16 +8,22 @@
 
 <style>
     :root {
-        --primary-dark: rgb(63, 114, 175); /* new primary dark */
-        --primary-medium: rgb(157, 178, 191); /* new primary medium */
+        --primary-dark: #004890; /* new primary dark */
+        --primary-medium: #7885FF; /* new primary medium */
         --primary-light: rgb(219, 226, 239); /* new primary light */
-        --secondary-dark: rgb(63, 114, 175); /* mapped to primary-dark because no exact secondary */
+        --secondary-dark: #004890; /* mapped to primary-dark because no exact secondary */
         --secondary-light: rgb(219, 226, 239); /* mapped to primary-light */
-        --neutral-1: rgb(157, 178, 191); /* mapped to text-light */
-        --accent-1: rgb(63, 114, 175); /* mapped to primary-dark */
+        --neutral-1: #7885FF; /* mapped to text-light */
+        --accent-1: #004890; /* mapped to primary-dark */
         --accent-2: rgb(221, 230, 237); /* primary-lightest */
-        --accent-3: rgb(238, 244, 255); /* soft background you used */
+        --accent-3: #E9FAEB; /* soft background you used */
         --white: #ffffff; /* stays same */
+        /* --btn: #0466c8; */
+        /* --btn2: #0353a4; */
+        /* --btn-m: #8E99FF; */
+        --btn: #FF9B10;
+        --btn-m: #ffbf69;
+        --header: #000000;
     }
 
     .accounts-container {
@@ -28,7 +34,7 @@
     }
 
     .accounts-header {
-        color: var(--primary-dark);
+        color: var(--header);
         border-bottom: 2px solid var(--accent-1);
         padding-bottom: 1rem;
         margin-bottom: 2rem;
@@ -114,7 +120,7 @@
         }
 
     .bg-gradient-primary {
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+        background: linear-gradient(70deg, var(--primary-dark), var(--primary-medium) );
     }
 
     .avatar-icon {
@@ -175,11 +181,11 @@
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
                     <div>
                         <h1 class="accounts-header">
-                            <i class="fas fa-building-columns me-2"></i> Accounts Management
+                            <i class="fas  fa-building-columns me-2"></i> Accounts Management
                         </h1>
                         <p class="text-muted mb-0">View, update, and manage customer accounts</p>
                     </div>
-                    <a asp-controller="HandleAccount" asp-action="Create" asp-route-customerId="@Context.Request.RouteValues["id"]" class="btn btn-outline-primary mt-3 mt-md-0">
+                    <a asp-controller="HandleAccount" asp-action="Create" asp-route-customerId="@Context.Request.RouteValues["id"]" class="btn btn-primary mt-3 mt-md-0">
                         <i class="fas fa-plus-circle me-1"></i> Create New Account
                     </a>
                 </div>
@@ -190,18 +196,18 @@
                         <div class="col w-50">
                             <div class="card account-card h-100 border-0 shadow-sm hover-shadow-lg transition-all @(item.AccountStatus == AccountStatus.Closed ? "closed" : "")">
                                 <!-- Card Header -->
-                                <div class="card-header bg-gradient-primary bg-opacity-10 border-bottom-0 pt-4 pb-3">
+                                <div class="card-header bg-gradient-primary bg-opacity-50 border-bottom-0 pt-4 pb-3">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="d-flex align-items-center gap-2">
-                                            <div class="icon-wrapper bg-primary bg-opacity-10 p-3 rounded-circle">
-                                                <i class="@GetAccountIcon(item.AccountType) fs-4 text-primary"></i>
+                                            <div class="icon-wrapper bg-primary bg-opacity-10 p-3 text-white rounded-circle">
+                                                <i class="@GetAccountIcon(item.AccountType) fs-4 text-white text-opacity-75"></i>
                                             </div>
                                             <div>
-                                                <h5 class="mb-0 fw-bold text-dark">@item.Number</h5>
-                                                <small class="text-muted">@item.AccountType.ToString()</small>
+                                                <h5 class="mb-0 fw-bold text-white text-opacity-75">@item.Number</h5>
+                                                <small class="text-white text-opacity-50">@item.AccountType.ToString()</small>
                                             </div>
                                         </div>
-                                        <span class="badge rounded-pill bg-@GetStatusColor(item.AccountStatus) bg-opacity-25 text-@GetStatusColor(item.AccountStatus) py-2 px-3">
+                                        <span class="badge rounded-pill bg-@GetStatusColor(item.AccountStatus) bg-opacity-75 text-white py-2 px-3">
                                             @item.AccountStatus
                                         </span>
                                     </div>
@@ -217,7 +223,7 @@
                                         </div>
 
                                         <!-- Account Metadata -->
-                                        <div class="row g-2">
+                                        <div class="row g-2 text-al">
                                             <div class="col-6">
                                                 <div class="d-flex align-items-center gap-2 text-muted">
                                                     <i class="fas fa-calendar-alt fa-sm"></i>

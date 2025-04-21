@@ -5,16 +5,22 @@
 }
 <style>
     :root {
-        --primary-dark: rgb(63, 114, 175); /* new primary dark */
-        --primary-medium: rgb(157, 178, 191); /* new primary medium */
+        --primary-dark: #004890; /* new primary dark */
+        --primary-medium: #7885FF; /* new primary medium */
         --primary-light: rgb(219, 226, 239); /* new primary light */
-        --secondary-dark: rgb(63, 114, 175); /* mapped to primary-dark because no exact secondary */
+        --secondary-dark: #004890; /* mapped to primary-dark because no exact secondary */
         --secondary-light: rgb(219, 226, 239); /* mapped to primary-light */
-        --neutral-1: rgb(157, 178, 191); /* mapped to text-light */
-        --accent-1: rgb(63, 114, 175); /* mapped to primary-dark */
+        --neutral-1: #7885FF; /* mapped to text-light */
+        --accent-1: #004890; /* mapped to primary-dark */
         --accent-2: rgb(221, 230, 237); /* primary-lightest */
-        --accent-3: rgb(238, 244, 255); /* soft background you used */
+        --accent-3: #E9FAEB; /* soft background you used */
         --white: #ffffff; /* stays same */
+        /* --btn: #0466c8; */
+        /* --btn2: #0353a4; */
+        /* --btn-m: #8E99FF; */
+        --btn: #FF9B10;
+        --btn-m: #ffbf69;
+        --header: #000000;
     }
 
     .loan-container {
@@ -26,7 +32,7 @@
     }
 
     .loan-header {
-        color: var(--primary-dark);
+        color: var(--header);
         border-bottom: 2px solid var(--accent-1);
         padding-bottom: 1rem;
         margin-bottom: 2rem;
@@ -60,7 +66,7 @@
     }
 
     .filter-title {
-        color: var(--primary-medium);
+        color: var(--primary-dark);
         font-weight: 600;
         margin-bottom: 1rem;
     }
@@ -89,12 +95,15 @@
 
         .loan-table thead {
             background: linear-gradient(90deg, var(--primary-dark), var(--primary-medium));
-            color: var(--accent-3);
+            color: var(--white);
         }
 
         .loan-table th {
+            background: linear-gradient(180deg, var(--primary-dark), var(--primary-medium));
             font-weight: 500;
             padding: 1rem;
+            color: var(--white);
+
         }
 
         .loan-table td {
@@ -113,7 +122,7 @@
     }
 
     .btn-preview {
-        background-color: var(--primary-light);
+        background-color: var(--primary-dark);
         border: none;
         padding: 0.5rem 1rem;
         transition: all 0.3s ease;
