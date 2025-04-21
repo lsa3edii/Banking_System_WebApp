@@ -24,15 +24,21 @@ namespace BankingSystem.BLL.Services
        
 
 
-        public IEnumerable<SupportTicket> GetAll(string? userID = "", int flag = 1)
+        public IQueryable<SupportTicket> GetAll(string? userID = "", int flag = 1)
         {
-            return _context.SupportTickets
-                .Include(t => t.Account)
-                .Include(t => t.Teller)
-                    .ThenInclude(t => t.Branch)
-                .Include(t => t.Customer)
-                    .ThenInclude(c => c.Accounts)
-                .ToList();
+            var query = _context.SupportTickets
+                        .Include(t => t.Account)
+                        .Include(t => t.Teller)
+                            .ThenInclude(t => t.Branch)
+                        .Include(t => t.Customer)
+                            .ThenInclude(c => c.Accounts);
+
+            if (flag == 1)
+                return query;
+
+
+            return query
+                   .Where(t => t.TellerId == userID);
         }
 
 
@@ -85,13 +91,13 @@ namespace BankingSystem.BLL.Services
 
             var byName = allTickets
                 .Where(t =>
-                    !string.IsNullOrEmpty(t.Customer?.FirstName) &&
-                    !string.IsNullOrEmpty(t.Customer?.LastName) &&
-                    (t.Customer.FirstName + " " + t.Customer.LastName).ToLower().Contains(sanitizedNameSearch))
-                .ToList();
+                    !string.IsNullOrEmpty(t.Customer.FirstName) &&
+                    !string.IsNullOrEmpty(t.Customer.LastName) &&
+                    (t.Customer.FirstName + " " + t.Customer.LastName).ToLower().Contains(sanitizedNameSearch));
 
             return byName;
         }
+
 
 
 

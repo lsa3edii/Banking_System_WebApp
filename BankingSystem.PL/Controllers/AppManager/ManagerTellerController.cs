@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pag
 using System.Security.Claims;
 
 
-namespace BankingSystem.PL.Controllers.Manager
+namespace BankingSystem.PL.Controllers
 {
     [Authorize(Roles = "Manager")]
     public class ManagerTellerController(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager) : Controller
@@ -84,7 +84,10 @@ namespace BankingSystem.PL.Controllers.Manager
 
             if (UserToRegister != null && ModelState.IsValid)
             {
+                UserToRegister.Id = Guid.NewGuid().ToString();
                 var teller = _mapper.Map<Teller>(UserToRegister);
+                teller.Id = UserToRegister.Id;
+
                 teller.BranchId = manager.BranchId;
                 teller.ManagerId = manager.Id;
 

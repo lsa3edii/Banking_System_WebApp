@@ -36,54 +36,92 @@
     }
 
     .visa-card {
-        border: none;
+        position: relative;
         border-radius: 15px;
         overflow: hidden;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
-        transition: transform 0.2s ease;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        color: white;
+        min-height: 220px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
+
 
         .visa-card:hover {0
             transform: translateY(-5px);
-        }
 
+
+    /* Card Background Gradients */
+    .card-debit {
+        background: linear-gradient(135deg, #1c4e4f 0%, #436e6f 100%);
+    }
+
+    .card-credit {
+        background: linear-gradient(135deg, #003087 0%, #0057b7 100%);
+    }
+
+    /* Card Header */
     .visa-card-header {
+
         background: var(--primary-dark) 90%;
         /* background: linear-gradient(270deg, var(--primary-dark), var(--primary-dark)); */
         color: var(--white);
         padding: 1rem 1.5rem;
         font-weight: bold;
         opacity:85%;
+
+
+    .visa-card-type {
+        font-weight: 600;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
+    .visa-logo {
+        width: 60px;
+        height: auto;
+        opacity: 0.9;
+    }
+
+    /* Card Body */
     .visa-card-body {
+
         background: var(--new);
         /* background: linear-gradient(270deg, var(--primary-dark 10%) , var(--primary-medium)); */
         padding: 1.5rem;
         opacity: 85%;
 
+
+
+    .visa-card-number {
+        font-family: 'Courier New', monospace;
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+        margin-bottom: 1.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        display: flex;
+        justify-content: space-between;
     }
 
-    .visa-card-footer {
-        background: var(--accent-2);
-        padding: 0.75rem;
-        text-align: center;
+    .visa-card-details {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
     }
 
-        .visa-card-footer .btn {
-            font-weight: 500;
-            margin-right: 10px;
-        }
-
-    .card-debit {
-        background-color: #d1f2d1;
+    .visa-card-holder {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
-    .card-credit {
-        /* background-color: #f7d7d7; */
-        background-color: lightskyblue;
-
+    .visa-card-expiry {
+        font-size: 0.9rem;
     }
+
 
     .customers-header {
         color: var(--header);
@@ -91,28 +129,49 @@
         padding-bottom: 1rem;
         margin-bottom: 2rem;
         font-size: 2.5rem;
+
+    .visa-card-footer {
+        background: rgba(0, 0, 0, 0.15);
+        padding: 0.75rem 1.5rem;
+        display: flex;
+        justify-content: flex-end;
+
     }
 
-    .visa-btn {
-        border: 1px solid #003087;
-        color: #003087;
-        background-color: transparent;
-        transition: all 0.3s ease;
+    /* Chip Design */
+    .visa-chip {
+        position: absolute;
+        width: 40px;
+        height: 30px;
+        background: linear-gradient(135deg, #ffd700 0%, #c9b233 100%);
+        border-radius: 5px;
+        top: 10px;
+        left: 1.5rem;
     }
 
-        .visa-btn i {
-            color: #003087;
-            transition: color 0.3s ease;
-        }
+    /* Holographic Effect */
+    .visa-holographic {
+        position: absolute;
+        width: 60px;
+        height: 40px;
+        background: linear-gradient(45deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.2) 100%);
+        border-radius: 50%;
+        top: 15px;
+        right: 1.5rem;
+        opacity: 0.7;
+    }
 
-        .visa-btn:hover {
-            background-color: #003087;
-            color: white;
-        }
+    /* Wave Pattern Background */
+    .visa-wave-pattern {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(circle at 70% 30%, rgba(255,255,255,0.1) 0%, transparent 20%);
+        opacity: 0.5;
+    }
 
-            .visa-btn:hover i {
-                color: white;
-            }
 </style>
 
 @section Scripts {
@@ -170,7 +229,7 @@
                     @* </a> *@
 
                 </div>
-                
+
 
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 filters-section mb-4">
                     <!-- Search -->
@@ -210,20 +269,42 @@
                         @foreach (var card in Model)
                         {
                             <div class="col">
-                                <div class="card visa-card h-100 @(card.CardType == "Debit" ? "card-debit" : "card-credit")">
-                                    <div class="visa-card-header d-flex justify-content-between">
-                                        <span>@card.CardType</span>
-                                        <span>•••• @card.Number.Substring(Math.Max(0, card.Number.Length - 4))</span>
+                                <div class="visa-card h-100 @(card.CardType == "Debit" ? "card-debit" : "card-credit")">
+                                    <div class="visa-wave-pattern"></div>
+                                    @* <div class="visa-chip"></div> *@
+                                    <div class="visa-holographic"></div>
+
+                                    <div class="visa-card-header">
+                                        <span class="visa-card-type">@card.CardType</span>
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png"
+                                             alt="Visa" class="visa-logo">
                                     </div>
+
                                     <div class="visa-card-body">
-                                        <p><strong>Customer:</strong> @card.CustomerName</p>
-                                        <p><strong>Account Number:</strong> @card.AccountNumber</p>
-                                        @* <p><strong>CVV:</strong> @card.CVV</p> *@
-                                        <p><strong>CVV:</strong> ***</p>
-                                        <p><strong>Expiration:</strong> @card.ExpDate.ToString("MMMM yyyy")</p>
-                                        <p><strong>Created:</strong> @card.CreationDate.ToString("MMMM dd, yyyy")</p>
+                                        <div class="visa-card-number">
+                                            <span>••••</span>
+                                            <span>••••</span>
+                                            <span>••••</span>
+                                            <span>@card.Number.Substring(Math.Max(0, card.Number.Length - 4))</span>
+                                        </div>
+
+                                        <div class="visa-card-details">
+                                            <div>
+                                                <div style="font-size: 0.7rem; opacity: 0.8;">Card Holder</div>
+                                                <div class="visa-card-holder fw-bold">@card.CustomerName.ToUpper()</div>
+                                            </div>
+                                            <div>
+                                                <div style="font-size: 0.7rem; opacity: 0.8; color:black;">Expires</div>
+                                                <div class="visa-card-expiry">@card.ExpDate.ToString("MM/yy")</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="visa-card-number mt-4 mb-0">
+                                            <span>Account:</span>
+                                            <span class="fw-bold">@card.AccountNumber</span>
+                                        </div>
                                     </div>
-                                    <div class="visa-card-footer">
+
 
                                         <form asp-action="Delete" asp-route-id="@card.Id">
                                             <button onclick="return confirmDelete()" class="btn btn-outline-danger btn-sm delete-card-btn">
@@ -231,6 +312,7 @@
                                             </button>
                                         </form >
                                         
+
                                     </div>
                                 </div>
                             </div>

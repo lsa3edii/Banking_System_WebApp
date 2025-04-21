@@ -25,7 +25,7 @@ namespace BankingSystem.PL.Controllers.AppCustomer
         public IActionResult Details(string id)
         {
             var customer = _UnitOfWork.Repository<Customer>()
-                         .GetSingleDeepIncluding( c => c.Id == id,
+                         .GetSingleDeepIncluding(c => c.Id == id,
                           q => q.Include(c => c.Accounts).ThenInclude(a => a.Certificates)
                           .ThenInclude(c => c.GeneralCertificate));
 
@@ -43,13 +43,13 @@ namespace BankingSystem.PL.Controllers.AppCustomer
         }
 
 
-        [HttpGet] 
+        [HttpGet]
         public IActionResult ApplyCertificate(string id)
         {
-            
+
             var allcertificates = _UnitOfWork.Repository<GeneralCertificate>().GetAll().ToList();
             var customer = _UnitOfWork.Repository<Customer>().
-                GetSingleIncluding(c => c.Id == id,c => c.Accounts);
+                GetSingleIncluding(c => c.Id == id, c => c.Accounts);
 
             var accountSelectList = customer.Accounts
                 .Select(a => new SelectListItem
@@ -85,7 +85,7 @@ namespace BankingSystem.PL.Controllers.AppCustomer
             while (exists);  // Repeat until a unique number is found
 
             return certnum;
-        }    
+        }
 
         [HttpPost]
         public async Task<IActionResult> ApplyCertificate(CustomerCertificateVM model)
@@ -126,14 +126,19 @@ namespace BankingSystem.PL.Controllers.AppCustomer
                 Amount = amount
             };
 
-            account.Balance -= amount;
-            _UnitOfWork.Repository<Account>().Update(account); 
 
+            account.Balance -= amount;
+        
+
+
+
+            // Update the account balance
 
             _UnitOfWork.Repository<Certificate>().Add(newCertificate);
+            _UnitOfWork.Repository<Account>().Update(account);
             _UnitOfWork.Complete();
 
-            return RedirectToAction("ThanksCertificate", new { number = newCertificate.CertificateNumber }); 
+            return RedirectToAction("ThanksCertificate", new { number = newCertificate.CertificateNumber });
         }
 
 
@@ -157,17 +162,17 @@ namespace BankingSystem.PL.Controllers.AppCustomer
                 Name = certificate.GeneralCertificate.Name,
                 Duration = certificate.GeneralCertificate.Duration,
                 InterestRate = certificate.GeneralCertificate.InterestRate
-                
+
             };
 
             return View(customerCertificateVM);
         }
-            
-        }
-
-
 
     }
+
+
+
+}
 
 
 
